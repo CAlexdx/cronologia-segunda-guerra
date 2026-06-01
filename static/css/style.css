@@ -1,0 +1,867 @@
+/* ==============================================================================
+   1. RAÍZ, PALETA E FONTES — DOSSIÊ MILITAR / ARQUIVO DE GUERRA
+   Paleta inspirada em: papel manila envelhecido, tinta de carimbo desbotada,
+   manchas de café, mapas de operações, fotografias P&B da época.
+   ============================================================================== */
+@import url('https://fonts.googleapis.com/css2?family=Special+Elite&family=IM+Fell+English:ital@0;1&family=Courier+Prime:ital,wght@0,400;0,700;1,400&display=swap');
+
+:root {
+    /* Fundos — papel envelhecido em camadas */
+    --bg-base:             #1c1a14;   /* Papel de arquivo muito escuro */
+    --bg-surface:          #242018;   /* Cards e modal */
+    --bg-surface-elevated: #2c2820;   /* Elementos destacados */
+    --bg-parchment:        #2e2a1e;   /* Tom pergaminho escurecido */
+
+    /* Bordas — como arestas desgastadas */
+    --border-color:        #4a4232;
+    --border-worn:         #3a3428;
+
+    /* Acentos — cores de arquivo e conflito */
+    --accent-ink:          #c8a96e;   /* Tinta sépia envelhecida (era ouro) */
+    --accent-ink-rgb:      200, 169, 110;
+    --accent-blood:        #8b2a2a;   /* Vermelho sangue / carimbo de urgência */
+    --accent-blood-bright: #b03030;
+    --accent-khaki:        #7a7055;   /* Verde caqui militar */
+    --accent-rust:         #6b4a2a;   /* Ferrugem / manchas */
+
+    /* Tipografia */
+    --text-primary:        #d4c9a8;   /* Texto principal — creme envelhecido */
+    --text-secondary:      #9a9080;   /* Texto de suporte */
+    --text-muted:          #5e5848;   /* Textos apagados */
+    --text-stamp:          #8b2a2a;   /* Carimbos e alertas */
+
+    /* Fontes — máquina de escrever + tipografia editorial de época */
+    --font-display:        'IM Fell English', Georgia, serif;
+    --font-body:           'IM Fell English', Times New Roman, serif;
+    --font-mono:           'Courier Prime', 'Courier New', monospace;
+    --font-stamp:          'Special Elite', 'Courier New', monospace;
+
+    /* Efeitos */
+    --transition-smooth:   all 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    --shadow-main:         0 20px 60px rgba(0, 0, 0, 0.8);
+    --shadow-card:         0 4px 24px rgba(0, 0, 0, 0.5),
+                           inset 0 1px 0 rgba(200, 169, 110, 0.05);
+}
+
+/* Reset Geral */
+*, *::before, *::after {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* Textura de fundo — papel de arquivo granulado */
+body {
+    background-color: var(--bg-base);
+    background-image:
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E");
+    color: var(--text-primary);
+    font-family: var(--font-body);
+    font-size: 1.1rem;
+    line-height: 1.7;
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+}
+
+.hidden { display: none !important; }
+
+/* ==============================================================================
+   2. HEADER — CAPA DE DOSSIÊ CLASSIFICADO
+   ============================================================================== */
+.site-header {
+    position: relative;
+    padding: 80px 24px 70px;
+    text-align: center;
+    background-color: #13110d;
+    border-bottom: 2px solid var(--border-color);
+    overflow: hidden;
+}
+
+/* Linhas horizontais de papel pautado militar */
+.site-header::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image: repeating-linear-gradient(
+        to bottom,
+        transparent,
+        transparent 28px,
+        rgba(74, 66, 50, 0.12) 28px,
+        rgba(74, 66, 50, 0.12) 29px
+    );
+    pointer-events: none;
+}
+
+/* Vinheta nas bordas */
+.site-header::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse at center, transparent 40%, rgba(0,0,0,0.6) 100%);
+    pointer-events: none;
+}
+
+.header-noise {
+    position: absolute;
+    inset: 0;
+    opacity: 0.04;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    pointer-events: none;
+}
+
+.header-content {
+    position: relative;
+    z-index: 2;
+    max-width: 820px;
+    margin: 0 auto;
+}
+
+/* Classificação estilo dossiê */
+.header-overline {
+    font-family: var(--font-stamp);
+    font-size: 0.85rem;
+    color: var(--accent-blood-bright);
+    letter-spacing: 6px;
+    margin-bottom: 20px;
+    text-transform: uppercase;
+    opacity: 0.9;
+    /* Simula carimbo levemente torto */
+    display: inline-block;
+    transform: rotate(-0.5deg);
+    border: 1px solid var(--accent-blood);
+    padding: 3px 16px;
+}
+
+.header-title {
+    font-family: var(--font-display);
+    font-size: clamp(2.8rem, 6vw, 4.5rem);
+    font-weight: 400;           /* IM Fell é naturalmente pesada */
+    font-style: normal;
+    line-height: 1.05;
+    color: var(--text-primary);
+    letter-spacing: 1px;
+    text-shadow: 2px 3px 12px rgba(0,0,0,0.7);
+}
+
+.header-title em {
+    font-style: italic;
+    color: var(--accent-ink);
+    display: block;
+}
+
+.header-subtitle {
+    font-family: var(--font-mono);
+    font-size: 0.95rem;
+    color: var(--text-secondary);
+    margin-top: 20px;
+    font-weight: 400;
+    letter-spacing: 1px;
+}
+
+/* Separador estilo régua de mapa */
+.header-line {
+    width: 100%;
+    max-width: 500px;
+    height: 1px;
+    margin: 28px auto;
+    background: linear-gradient(
+        to right,
+        transparent,
+        var(--border-color) 15%,
+        var(--accent-ink) 50%,
+        var(--border-color) 85%,
+        transparent
+    );
+    position: relative;
+}
+
+.header-line::before,
+.header-line::after {
+    content: '✦';
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--accent-ink);
+    font-size: 0.6rem;
+    opacity: 0.7;
+}
+.header-line::before { left: calc(50% - 60px); }
+.header-line::after  { left: calc(50% + 52px); }
+
+.header-instruction {
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 3px;
+}
+
+.header-bottom-fade {
+    position: absolute;
+    bottom: 0; left: 0;
+    width: 100%; height: 50px;
+    background: linear-gradient(to top, var(--bg-base), transparent);
+}
+
+/* ==============================================================================
+   3. CONTAINER DA LINHA DO TEMPO — TRILHO HORIZONTAL
+   ============================================================================== */
+.timeline-container {
+    position: relative;
+    width: 100vw;
+    max-width: 100%;
+    margin: 0;
+    padding: 150px 0;
+    overflow-x: auto;
+    overflow-y: hidden;
+    display: flex;
+    align-items: center;
+    white-space: nowrap;
+    scroll-behavior: smooth;
+    /* Textura sutil de mapa operacional no fundo */
+    background-image:
+        repeating-linear-gradient(
+            90deg,
+            transparent,
+            transparent 80px,
+            rgba(74, 66, 50, 0.04) 80px,
+            rgba(74, 66, 50, 0.04) 81px
+        ),
+        repeating-linear-gradient(
+            0deg,
+            transparent,
+            transparent 80px,
+            rgba(74, 66, 50, 0.04) 80px,
+            rgba(74, 66, 50, 0.04) 81px
+        );
+}
+
+/* Barra de rolagem — estilo régua */
+.timeline-container::-webkit-scrollbar { height: 6px; }
+.timeline-container::-webkit-scrollbar-track { background: var(--bg-base); }
+.timeline-container::-webkit-scrollbar-thumb {
+    background: var(--border-color);
+    border-radius: 0;           /* Quadrado, como metal */
+}
+.timeline-container::-webkit-scrollbar-thumb:hover { background: var(--accent-ink); }
+
+/* Trilho central — fio de telégrafo / linha de frente */
+.timeline-track {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    height: 2px;
+    width: max-content;
+    min-width: 100%;
+    background: linear-gradient(
+        to right,
+        transparent,
+        var(--border-color) 3%,
+        var(--accent-ink) 8%,
+        var(--accent-ink) 92%,
+        var(--border-color) 97%,
+        transparent
+    );
+    padding: 0 150px;
+    pointer-events: auto;
+}
+
+/* Bloco de cada marco histórico */
+.timeline-block {
+    position: relative;
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    width: 340px;
+    margin-right: 80px;
+    vertical-align: middle;
+}
+
+.timeline-block:last-child { margin-right: 200px; }
+
+/* Zigue-zague: acima e abaixo do trilho */
+.timeline-block.left {
+    justify-content: flex-end;
+    height: 400px;
+    margin-top: -200px;
+}
+.timeline-block.right {
+    justify-content: flex-start;
+    height: 400px;
+    margin-bottom: -200px;
+}
+
+/* Nó — alfinete de mapa de operações */
+.timeline-node {
+    position: absolute;
+    left: 50%;
+    width: 16px;
+    height: 16px;
+    background-color: var(--bg-base);
+    border: 2px solid var(--accent-ink);
+    border-radius: 50%;
+    transform: translateX(-50%);
+    z-index: 5;
+    transition: var(--transition-smooth);
+}
+
+/* Linha de conexão entre nó e card — como um fio de mapa */
+.timeline-node::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 1px;
+    background: linear-gradient(to bottom, var(--accent-ink), transparent);
+    opacity: 0.4;
+}
+
+.timeline-block.left  .timeline-node { bottom: -8px; }
+.timeline-block.right .timeline-node { top: -8px; }
+
+.timeline-block.left  .timeline-node::after { top: 8px;  height: 30px; }
+.timeline-block.right .timeline-node::after { bottom: 8px; height: 30px; transform: translateX(-50%) scaleY(-1); }
+
+.timeline-block:hover .timeline-node {
+    background-color: var(--accent-ink);
+    box-shadow: 0 0 0 4px rgba(var(--accent-ink-rgb), 0.15),
+                0 0 20px rgba(var(--accent-ink-rgb), 0.5);
+    transform: translateX(-50%) scale(1.25);
+}
+
+/* Card — folha de relatório de campo */
+.timeline-card {
+    position: relative;
+    width: 320px;
+    max-width: 320px;
+    background-color: var(--bg-surface);
+    border: 1px solid var(--border-color);
+    padding: 24px 24px 20px;
+    border-radius: 2px;         /* Quase sem arredondamento — documento físico */
+    cursor: pointer;
+    transition: var(--transition-smooth);
+    box-shadow: var(--shadow-card);
+    white-space: normal !important;
+    display: block !important;
+
+    /* Borda esquerda estilo classificação */
+    border-left: 3px solid var(--accent-rust);
+}
+
+/* Canto dobrado — documento físico */
+.timeline-card::before {
+    content: '';
+    position: absolute;
+    top: 0; right: 0;
+    width: 18px; height: 18px;
+    background: linear-gradient(
+        225deg,
+        var(--bg-base) 50%,
+        var(--border-color) 50%
+    );
+}
+
+.timeline-card:hover {
+    border-color: var(--accent-ink);
+    border-left-color: var(--accent-blood-bright);
+    box-shadow: 0 8px 40px rgba(0, 0, 0, 0.7),
+                inset 0 0 0 1px rgba(var(--accent-ink-rgb), 0.08);
+}
+
+.timeline-block.left  .timeline-card:hover { transform: translateY(-8px); }
+.timeline-block.right .timeline-card:hover { transform: translateY(8px); }
+
+/* Data — carimbo de data/hora */
+.card-data {
+    font-family: var(--font-mono);
+    font-size: 0.82rem;
+    color: var(--accent-ink);
+    letter-spacing: 2px;
+    margin-bottom: 10px;
+    opacity: 0.9;
+}
+
+/* Título — headline de telegrama */
+.card-titulo {
+    font-family: var(--font-display);
+    font-size: 1.25rem;
+    font-weight: 400;
+    color: var(--text-primary);
+    line-height: 1.25;
+    margin-bottom: 12px;
+}
+
+/* Resumo — corpo do relatório */
+.card-resumo {
+    font-family: var(--font-body);
+    font-size: 0.95rem;
+    color: var(--text-secondary);
+    font-style: italic;
+    line-height: 1.55;
+}
+
+/* ==============================================================================
+   4. ESTADOS DE INTERFACE (LOADING & ERRO)
+   ============================================================================== */
+.loading-state, .error-state {
+    position: absolute;
+    left: 50%; top: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    white-space: nowrap;
+    z-index: 10;
+}
+
+.loading-spinner {
+    width: 36px; height: 36px;
+    border: 2px solid rgba(var(--accent-ink-rgb), 0.12);
+    border-top: 2px solid var(--accent-ink);
+    border-radius: 50%;
+    margin: 0 auto 20px;
+    animation: spin 1.2s linear infinite;
+}
+.loading-spinner.small { width: 26px; height: 26px; }
+
+.loading-text {
+    font-family: var(--font-mono);
+    color: var(--text-secondary);
+    font-size: 0.85rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+}
+
+.error-icon {
+    font-size: 2.2rem;
+    color: var(--accent-blood-bright);
+    margin-bottom: 14px;
+}
+
+.error-text {
+    color: var(--text-secondary);
+    margin-bottom: 24px;
+    white-space: normal;
+    font-family: var(--font-mono);
+}
+
+.btn-retry {
+    background-color: transparent;
+    border: 1px solid var(--accent-ink);
+    color: var(--accent-ink);
+    font-family: var(--font-stamp);
+    padding: 10px 28px;
+    font-size: 0.9rem;
+    cursor: pointer;
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    transition: var(--transition-smooth);
+    border-radius: 1px;
+}
+.btn-retry:hover {
+    background-color: var(--accent-ink);
+    color: var(--bg-base);
+}
+
+/* ==============================================================================
+   5. MODAL — PASTA DE ARQUIVO ABERTA / RELATÓRIO DE INTELIGÊNCIA
+   ============================================================================== */
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    background-color: rgba(10, 9, 7, 0.92);
+    z-index: 100;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 24px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+    backdrop-filter: blur(3px);
+}
+.modal-overlay.active {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.modal-panel {
+    position: relative;
+    width: 100%;
+    max-width: 900px;
+    max-height: 88vh;
+    background-color: var(--bg-surface);
+    border: 1px solid var(--border-color);
+    border-radius: 2px;
+    overflow-y: auto;
+    box-shadow: var(--shadow-main),
+                inset 0 0 0 4px rgba(74, 66, 50, 0.08);
+    transform: translateY(16px) scale(0.99);
+    transition: transform 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+
+    /* Borda de arquivo classificado */
+    border-top: 3px solid var(--accent-blood);
+}
+
+.modal-overlay.active .modal-panel {
+    transform: translateY(0) scale(1);
+}
+
+/* Scrollbar do modal */
+.modal-panel::-webkit-scrollbar { width: 5px; }
+.modal-panel::-webkit-scrollbar-track { background: var(--bg-base); }
+.modal-panel::-webkit-scrollbar-thumb { background: var(--border-color); }
+.modal-panel::-webkit-scrollbar-thumb:hover { background: var(--accent-ink); }
+
+.modal-close {
+    position: absolute;
+    top: 16px; right: 16px;
+    width: 34px; height: 34px;
+    background-color: rgba(0,0,0,0.5);
+    border: 1px solid var(--border-color);
+    border-radius: 1px;
+    color: var(--text-secondary);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    z-index: 10;
+    transition: var(--transition-smooth);
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+}
+.modal-close:hover {
+    border-color: var(--accent-blood-bright);
+    color: var(--accent-blood-bright);
+    background-color: rgba(139, 42, 42, 0.1);
+}
+
+.modal-loading {
+    padding: 100px 0;
+    text-align: center;
+    font-family: var(--font-mono);
+    color: var(--text-secondary);
+    font-size: 0.85rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+}
+
+/* Imagem — fotografia de arquivo */
+.modal-image-wrap {
+    position: relative;
+    width: 100%;
+    height: 340px;
+    background-color: #0a0906;
+    overflow: hidden;
+    /* Borda de fotografia antiga */
+    border-bottom: 1px solid var(--border-color);
+}
+
+.modal-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: 0.75;
+    filter: sepia(30%) contrast(1.05);
+    transition: opacity 0.4s ease;
+}
+
+.modal-image:hover { opacity: 0.85; }
+
+.modal-image-gradient {
+    position: absolute;
+    bottom: 0; left: 0;
+    width: 100%; height: 65%;
+    background: linear-gradient(to top, var(--bg-surface) 5%, transparent);
+}
+
+/* Cabeçalho do modal */
+.modal-header {
+    padding: 28px 40px 0;
+    position: relative;
+}
+
+/* Linha decorativa estilo cabeçalho de telegrama */
+.modal-header::before {
+    content: '— RELATÓRIO HISTÓRICO —';
+    display: block;
+    font-family: var(--font-stamp);
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+    opacity: 0.6;
+}
+
+.modal-data {
+    font-family: var(--font-mono);
+    font-size: 0.9rem;
+    color: var(--accent-ink);
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+}
+
+.modal-titulo {
+    font-family: var(--font-display);
+    font-size: clamp(1.8rem, 3vw, 2.4rem);
+    font-weight: 400;
+    color: var(--text-primary);
+    line-height: 1.2;
+}
+
+/* Corpo do modal */
+.modal-body {
+    padding: 24px 40px 44px;
+}
+
+.modal-definicao {
+    font-family: var(--font-body);
+    font-size: 1.1rem;
+    color: var(--text-secondary);
+    font-style: italic;
+    text-align: justify;
+    margin-bottom: 40px;
+    white-space: normal;
+    line-height: 1.8;
+
+    /* Indentação de parágrafo — estilo tipográfico clássico */
+    text-indent: 1.5em;
+
+    /* Linha decorativa à esquerda — margem de caderno */
+    border-left: 2px solid var(--border-worn);
+    padding-left: 20px;
+    margin-left: 4px;
+}
+
+/* ==============================================================================
+   6. PERSONAGENS — FICHAS DE INTELIGÊNCIA N:M
+   ============================================================================== */
+.modal-personagens-section {
+    border-top: 1px solid var(--border-color);
+    padding-top: 32px;
+    position: relative;
+}
+
+/* Carimbo "CONFIDENCIAL" decorativo no fundo */
+.modal-personagens-section::before {
+    content: 'FIGURAS DE CONFLITO';
+    position: absolute;
+    top: -12px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-family: var(--font-stamp);
+    font-size: 0.65rem;
+    color: var(--bg-surface-elevated);
+    background: var(--bg-surface);
+    padding: 0 12px;
+    letter-spacing: 4px;
+    white-space: nowrap;
+}
+
+.personagens-titulo {
+    font-family: var(--font-display);
+    font-size: 1.25rem;
+    font-style: italic;
+    color: var(--text-secondary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+    margin-bottom: 26px;
+    letter-spacing: 1px;
+}
+
+.titulo-linha {
+    flex-grow: 1;
+    height: 1px;
+    background: linear-gradient(to right, transparent, var(--border-color));
+}
+
+.titulo-linha:last-child {
+    background: linear-gradient(to left, transparent, var(--border-color));
+}
+
+.personagens-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+}
+
+/* Ficha de personagem — verbete de enciclopédia militar */
+.personagem-card {
+    background-color: var(--bg-parchment);
+    border: 1px solid var(--border-worn);
+    border-left: 2px solid var(--accent-khaki);
+    padding: 18px 20px;
+    border-radius: 1px;
+    transition: var(--transition-smooth);
+    white-space: normal;
+    position: relative;
+}
+
+.personagem-card::after {
+    content: '';
+    position: absolute;
+    top: 0; right: 0;
+    width: 12px; height: 12px;
+    background: linear-gradient(
+        225deg,
+        var(--bg-base) 50%,
+        var(--border-worn) 50%
+    );
+}
+
+.personagem-card:hover {
+    border-color: var(--border-color);
+    border-left-color: var(--accent-ink);
+    background-color: var(--bg-surface-elevated);
+}
+
+.personagem-nome {
+    font-family: var(--font-display);
+    font-size: 1.1rem;
+    font-weight: 400;
+    color: var(--accent-ink);
+    margin-bottom: 2px;
+}
+
+.personagem-nacionalidade {
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    color: var(--accent-khaki);
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    display: block;
+    margin-bottom: 10px;
+    opacity: 0.85;
+}
+
+.personagem-papel {
+    font-family: var(--font-body);
+    font-size: 0.95rem;
+    color: var(--text-secondary);
+    font-style: italic;
+    line-height: 1.55;
+}
+
+.personagem-papel strong {
+    font-style: normal;
+    color: var(--text-muted);
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-weight: 700;
+}
+
+/* ==============================================================================
+   7. FOOTER — RODAPÉ DE DOCUMENTO OFICIAL
+   ============================================================================== */
+.site-footer {
+    background-color: #0f0e0b;
+    border-top: 1px solid var(--border-color);
+    padding: 44px 24px;
+    text-align: center;
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    letter-spacing: 1px;
+    position: relative;
+}
+
+.site-footer::before {
+    content: '';
+    display: block;
+    width: 120px;
+    height: 1px;
+    background: var(--border-color);
+    margin: 0 auto 28px;
+}
+
+.site-footer p { margin-bottom: 8px; }
+
+.site-footer a {
+    color: var(--text-secondary);
+    text-decoration: none;
+    border-bottom: 1px dashed var(--text-muted);
+    transition: var(--transition-smooth);
+}
+.site-footer a:hover {
+    color: var(--accent-ink);
+    border-bottom-color: var(--accent-ink);
+}
+
+.footer-credit {
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    margin-top: 20px;
+    color: var(--border-color);
+}
+
+/* ==============================================================================
+   8. ANIMAÇÕES
+   ============================================================================== */
+@keyframes spin {
+    0%   { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* ==============================================================================
+   9. RESPONSIVIDADE MOBILE
+   ============================================================================== */
+@media (max-width: 768px) {
+    body { overflow-x: auto; }
+
+    .timeline-container {
+        width: 100%;
+        padding: 40px 24px;
+        overflow-x: hidden;
+        overflow-y: auto;
+        display: block;
+    }
+
+    .timeline-track {
+        display: block;
+        width: 2px;
+        height: max-content;
+        min-height: 100%;
+        position: absolute;
+        left: 34px;
+        top: 0; bottom: 0;
+        padding: 40px 0;
+        background: linear-gradient(
+            to bottom,
+            transparent,
+            var(--accent-ink) 5%,
+            var(--accent-ink) 95%,
+            transparent
+        );
+    }
+
+    .timeline-block {
+        display: block;
+        width: 100%;
+        height: auto !important;
+        margin: 0 0 40px 0 !important;
+        padding-left: 40px;
+    }
+
+    .timeline-node {
+        left: -6px !important;
+        top: 26px !important;
+        bottom: auto !important;
+        transform: none;
+    }
+
+    .timeline-card:hover { transform: translateY(-4px) !important; }
+
+    .personagens-grid    { grid-template-columns: 1fr; }
+    .modal-panel         { max-height: 92vh; }
+    .modal-header,
+    .modal-body          { padding-left: 20px; padding-right: 20px; }
+    .modal-image-wrap    { height: 200px; }
+    .modal-titulo        { font-size: 1.6rem; }
+
+    .modal-header::before { font-size: 0.6rem; letter-spacing: 2px; }
+}
