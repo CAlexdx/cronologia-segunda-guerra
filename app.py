@@ -11,7 +11,8 @@ try:
     import psycopg2
     import psycopg2.extras
     PSYCOPG2_AVAILABLE = True
-except ImportError:
+except Exception as e:
+    print("ERRO PSYCOPG2:", e)
     PSYCOPG2_AVAILABLE = False
 
 # ==============================================================================
@@ -26,6 +27,8 @@ CORS(app)  # Permite que o front-end consuma a API sem bloqueio de CORS
 # PostgreSQL vinculado. Localmente, ela não existe → usa SQLite.
 # ------------------------------------------------------------------------------
 DATABASE_URL = os.environ.get('DATABASE_URL')
+print("DATABASE_URL existe?", bool(DATABASE_URL))
+print("PSYCOPG2_AVAILABLE =", PSYCOPG2_AVAILABLE)
 
 # O Render às vezes fornece URLs com prefixo "postgres://", mas psycopg2
 # exige "postgresql://". Esta linha corrige isso automaticamente.
