@@ -3,7 +3,8 @@
 // ==============================================================================
 
 document.addEventListener("DOMContentLoaded", () => {
-    // Seleção de elementos da estrutura
+
+    // Elementos da estrutura
     const timelineTrack  = document.getElementById("timeline-track");
     const loadingState   = document.getElementById("loading-state");
     const errorState     = document.getElementById("error-state");
@@ -14,65 +15,60 @@ document.addEventListener("DOMContentLoaded", () => {
     const modalLoading   = document.getElementById("modal-loading");
     const modalClose     = document.getElementById("modal-close");
 
-    // Campos Internos do Modal
+    // Campos internos do Modal
     const modalImagem    = document.getElementById("modal-imagem");
     const modalData      = document.getElementById("modal-data");
     const modalTitulo    = document.getElementById("modal-titulo");
     const modalDefinicao = document.getElementById("modal-definicao");
 
-    // FIX: nome corrigido de "personajesGrid" (bug ortográfico) para "personagensGrid"
-    // A variável estava sendo declarada com 'j' (espanhol) mas usada com 'g' (português)
-    // dentro de abrirDetalhesEvento, causando ReferenceError silencioso.
+    // FIX (mantido): variável declarada com nome correto em português.
+    // A versão anterior tinha "personajesGrid" (espanhol), causando ReferenceError.
     const personagensGrid = document.getElementById("personagens-grid");
 
     // ==========================================================================
     // 1. CARREGAMENTO DA TIMELINE LEVE (ROTA 1)
     // ==========================================================================
 
-    // FIX: função declarada antes de ser exposta no window,
-    // garantindo que a referência global esteja disponível imediatamente,
-    // inclusive para o botão "Tentar novamente" do HTML.
+    // FIX (mantido): função declarada antes de window.carregarTimeline,
+    // garantindo que a referência global exista quando o botão "Tentar novamente"
+    // do HTML for clicado (mesmo antes do DOMContentLoaded terminar).
     function carregarTimeline() {
         loadingState.classList.remove("hidden");
         errorState.classList.add("hidden");
         timelineTrack.innerHTML = "";
 
         fetch("/api/eventos")
-            .then(response => {
-                if (!response.ok) throw new Error("Resposta inválida do servidor");
-                return response.json();
+            .then(res => {
+                if (!res.ok) throw new Error("Resposta inválida do servidor");
+                return res.json();
             })
             .then(eventos => {
                 loadingState.classList.add("hidden");
 
                 if (eventos.length === 0) {
-                    timelineTrack.innerHTML = "<p style='text-align:center; color:var(--text-secondary); width: 100vw;'>Nenhum evento populado no banco.</p>";
+                    timelineTrack.innerHTML = "<p style='color:var(--text-secondary);padding:40px;'>Nenhum evento populado no banco.</p>";
                     return;
                 }
 
-                // Monta os blocos de forma alternada (left = cima, right = baixo no CSS horizontal)
                 eventos.forEach((evento, index) => {
                     const lado  = index % 2 === 0 ? "left" : "right";
-                    const bloco = criarBlocoTimeline(evento, lado);
-                    timelineTrack.appendChild(bloco);
+                    timelineTrack.appendChild(criarBlocoTimeline(evento, lado));
                 });
             })
-            .catch(error => {
-                console.error("[ERRO SCRIPT]:", error);
+            .catch(err => {
+                console.error("[ERRO SCRIPT]:", err);
                 loadingState.classList.add("hidden");
                 errorState.classList.remove("hidden");
             });
     }
 
-    // Vincula a função globalmente ANTES da inicialização,
-    // garantindo que o botão "Tentar novamente" do HTML sempre a encontre.
+    // Expõe globalmente para o botão "Tentar novamente" do HTML
     window.carregarTimeline = carregarTimeline;
 
-    // Construtor do bloco HTML para cada evento
+    // Constrói o bloco HTML de cada marco da timeline
     function criarBlocoTimeline(evento, lado) {
-        const block = document.createElement("div");
+        const block  = document.createElement("div");
         block.className = `timeline-block ${lado}`;
-
         const dataBr = formatarData(evento.data_evento);
 
         block.innerHTML = `
@@ -84,9 +80,7 @@ document.addEventListener("DOMContentLoaded", () => {
             </div>
         `;
 
-        // Ouvinte de clique para carregar os detalhes sob demanda (Lazy Loading)
-        const card = block.querySelector(".timeline-card");
-        card.addEventListener("click", () => {
+        block.querySelector(".timeline-card").addEventListener("click", () => {
             abrirDetalhesEvento(evento.id);
         });
 
@@ -94,7 +88,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     // ==========================================================================
-    // 2. DETALHES SOB DEMANDA E INTERAÇÃO N:M (ROTA 2)
+    // 2. DETALHES SOB DEMANDA — ROTA 2 (Lazy Loading + N:M)
     // ==========================================================================
     function abrirDetalhesEvento(id) {
         modalOverlay.classList.add("active");
@@ -102,25 +96,27 @@ document.addEventListener("DOMContentLoaded", () => {
         modalContent.classList.add("hidden");
 
         fetch(`/api/evento/${id}`)
-            .then(response => {
-                if (!response.ok) throw new Error("Erro ao carregar dados do evento.");
-                return response.json();
+            .then(res => {
+                if (!res.ok) throw new Error("Erro ao carregar dados do evento.");
+                return res.json();
             })
             .then(data => {
                 modalData.innerText      = formatarData(data.data_evento);
                 modalTitulo.innerText    = data.titulo;
+
+                // CONTRATO: app.py retorna 'definicao_profunda' (mesmo nome da coluna).
+                // init_db.py cria a coluna com este nome para fechar o ciclo.
                 modalDefinicao.innerText = data.definicao_profunda;
 
                 if (data.imagem_url) {
-                    modalImagem.src                    = data.imagem_url;
-                    modalImagem.alt                    = data.titulo;
+                    modalImagem.src = data.imagem_url;
+                    modalImagem.alt = data.titulo;
                     modalImagem.parentElement.style.display = "block";
                 } else {
                     modalImagem.parentElement.style.display = "none";
                 }
 
-                // Renderiza as Figuras Históricas (Relacionamento Muitos-para-Muitos)
-                // FIX: usa a variável corretamente nomeada "personagensGrid"
+                // Renderiza as figuras históricas — relacionamento N:M
                 personagensGrid.innerHTML = "";
                 if (data.personagens && data.personagens.length > 0) {
                     data.personagens.forEach(p => {
@@ -134,14 +130,14 @@ document.addEventListener("DOMContentLoaded", () => {
                         personagensGrid.appendChild(pCard);
                     });
                 } else {
-                    personagensGrid.innerHTML = "<p style='grid-column: 1/-1; color: var(--text-muted); text-align: center; padding: 20px;'>Nenhuma figura mapeada para este marco.</p>";
+                    personagensGrid.innerHTML = "<p style='grid-column:1/-1;color:var(--text-muted);text-align:center;padding:20px;'>Nenhuma figura mapeada para este marco.</p>";
                 }
 
                 modalLoading.classList.add("hidden");
                 modalContent.classList.remove("hidden");
             })
-            .catch(error => {
-                console.error("[ERRO MODAL]:", error);
+            .catch(err => {
+                console.error("[ERRO MODAL]:", err);
                 modalData.innerText      = "Erro";
                 modalTitulo.innerText    = "Falha na requisição";
                 modalDefinicao.innerText = "Não foi possível buscar as informações detalhadas no servidor.";
@@ -151,7 +147,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     // ==========================================================================
-    // 3. FUNÇÕES AUXILIARES (FECHAMENTO E DATA)
+    // 3. AUXILIARES — DATA E FECHAMENTO DO MODAL
     // ==========================================================================
     function formatarData(dataString) {
         if (!dataString) return "";
@@ -160,22 +156,23 @@ document.addEventListener("DOMContentLoaded", () => {
         return `${partes[2]}/${partes[1]}/${partes[0]}`;
     }
 
+    // Fechar pelo botão X
     modalClose.addEventListener("click", () => {
         modalOverlay.classList.remove("active");
     });
 
-    modalOverlay.addEventListener("click", (e) => {
-        if (e.target === modalOverlay) {
-            modalOverlay.classList.remove("active");
-        }
+    // Fechar clicando fora do painel
+    modalOverlay.addEventListener("click", e => {
+        if (e.target === modalOverlay) modalOverlay.classList.remove("active");
     });
 
-    document.addEventListener("keydown", (e) => {
+    // Fechar com tecla Esc
+    document.addEventListener("keydown", e => {
         if (e.key === "Escape" && modalOverlay.classList.contains("active")) {
             modalOverlay.classList.remove("active");
         }
     });
 
-    // Inicializa a chamada assim que a página abre
+    // Inicialização
     carregarTimeline();
 });

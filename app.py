@@ -19,19 +19,12 @@ except Exception as e:
 # 2. CONFIGURAÇÃO DA APLICAÇÃO
 # ==============================================================================
 app = Flask(__name__)
-CORS(app)  # Permite que o front-end consuma a API sem bloqueio de CORS
+CORS(app)
 
-# ------------------------------------------------------------------------------
-# DETECÇÃO AUTOMÁTICA DE AMBIENTE
-# No Render, a variável DATABASE_URL é configurada automaticamente pelo serviço
-# PostgreSQL vinculado. Localmente, ela não existe → usa SQLite.
-# ------------------------------------------------------------------------------
 DATABASE_URL = os.environ.get('DATABASE_URL')
 print("DATABASE_URL existe?", bool(DATABASE_URL))
 print("PSYCOPG2_AVAILABLE =", PSYCOPG2_AVAILABLE)
 
-# O Render às vezes fornece URLs com prefixo "postgres://", mas psycopg2
-# exige "postgresql://". Esta linha corrige isso automaticamente.
 if DATABASE_URL and DATABASE_URL.startswith("postgres://"):
     DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql://", 1)
 
@@ -57,7 +50,7 @@ def get_db():
             db = psycopg2.connect(DATABASE_URL)
         else:
             db = sqlite3.connect(DATABASE_LOCAL)
-            db.row_factory = sqlite3.Row  # Retorna dicionários no SQLite
+            db.row_factory = sqlite3.Row
         g._database = db
     return db
 
@@ -82,7 +75,6 @@ def close_connection(exception):
 # ==============================================================================
 @app.route('/')
 def index():
-    """Renderiza a página principal da Linha do Tempo."""
     return render_template('index.html')
 
 # ==============================================================================
@@ -93,9 +85,7 @@ def index():
 def get_eventos_basicos():
     """
     ROTA 1 — LAZY LOADING (Carga Leve)
-    ─────────────────────────────────────────────────────────────────────────
-    Retorna APENAS os dados leves de todos os eventos para renderizar a linha
-    do tempo inicial.
+    Retorna apenas os dados necessários para renderizar os cards da timeline.
     """
     try:
         db  = get_db()
@@ -110,7 +100,6 @@ def get_eventos_basicos():
         resultado = []
         for row in rows:
             d_row = dict(row)
-            # Converte formatos de data salvos como objeto datetime para string
             if hasattr(d_row['data_evento'], 'strftime'):
                 d_row['data_evento'] = d_row['data_evento'].strftime('%Y-%m-%d')
             else:
@@ -127,17 +116,15 @@ def get_eventos_basicos():
 @app.route('/api/evento/<int:evento_id>', methods=['GET'])
 def get_detalhes_evento(evento_id):
     """
-    ROTA 2 — DETALHE COMPLETO (Chamada sob demanda)
-    ─────────────────────────────────────────────────────────────────────────
-    Mapeada cirurgicamente para as chaves consumidas pelo main.js.
+    ROTA 2 — DETALHE COMPLETO (Chamada sob demanda / Lazy Loading)
+    Inclui definicao_profunda e o JOIN N:M com personagens.
+    CONTRATO COM main.js: o JSON retornado deve conter as chaves
+      'definicao_profunda' e 'personagens' (lista).
     """
     try:
         db  = get_db()
         cur = get_cursor(db)
 
-        # FIX: substituída f-string com interpolação direta ({PH} colado na query)
-        # pela forma correta de bind parameter com tuple, prevenindo SQL injection
-        # e mantendo consistência com o restante do arquivo.
         cur.execute(
             f"SELECT * FROM acontecimentos WHERE id = {PH}",
             (evento_id,)
@@ -149,13 +136,12 @@ def get_detalhes_evento(evento_id):
 
         evento_detalhado = dict(evento_row)
 
-        # Normalização de Datas para String
         if hasattr(evento_detalhado['data_evento'], 'strftime'):
             evento_detalhado['data_evento'] = evento_detalhado['data_evento'].strftime('%Y-%m-%d')
         else:
             evento_detalhado['data_evento'] = str(evento_detalhado['data_evento'])
 
-        # Personagens via JOIN N:M
+        # JOIN N:M — personagens vinculados a este acontecimento
         cur.execute(
             f"""
             SELECT
@@ -170,8 +156,6 @@ def get_detalhes_evento(evento_id):
             (evento_id,)
         )
         personagens_rows = cur.fetchall()
-
-        # Garante a estrutura exata exigida pela iteração javascript (data.personagens.forEach)
         evento_detalhado['personagens'] = [dict(p) for p in personagens_rows]
 
         return jsonify(evento_detalhado), 200
@@ -185,12 +169,12 @@ def get_detalhes_evento(evento_id):
 def get_personagem(personagem_id):
     """
     ROTA 3 — PERFIL DO PERSONAGEM
+    Retorna dados do personagem + todos os eventos em que participou (N:M inverso).
     """
     try:
         db  = get_db()
         cur = get_cursor(db)
 
-        # FIX: mesma correção aplicada aqui — bind parameter via tuple
         cur.execute(
             f"SELECT * FROM personagens WHERE id = {PH}",
             (personagem_id,)
@@ -202,7 +186,6 @@ def get_personagem(personagem_id):
 
         personagem = dict(personagem_row)
 
-        # Eventos em que este personagem participou (N:M inverso)
         cur.execute(
             f"""
             SELECT

@@ -4,9 +4,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cronologia da Segunda Guerra Mundial</title>
+
+    <!--
+        Fontes carregadas UMA SÓ VEZ aqui no HTML.
+        O @import foi removido do style.css para evitar carregamento duplo,
+        que causava flash de fonte não estilizada (FOUT) e requisições extras.
+    -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Crimson+Pro:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Special+Elite&family=IM+Fell+English:ital@0;1&family=Courier+Prime:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 <body>
@@ -21,7 +28,7 @@
             <h1 class="header-title">Segunda<br><em>Guerra Mundial</em></h1>
             <p class="header-subtitle">Uma cronologia dos acontecimentos que redefiniram a humanidade</p>
             <div class="header-line"></div>
-            <p class="header-instruction">Clique em qualquer marco para expandir a história completa</p>
+            <p class="header-instruction">Toque em qualquer marco para expandir a história completa</p>
         </div>
         <div class="header-bottom-fade"></div>
     </header>
@@ -31,13 +38,11 @@
     <!-- ============================================================ -->
     <main class="timeline-container" id="timeline-container">
 
-        <!-- Estado de carregamento inicial -->
         <div class="loading-state" id="loading-state">
             <div class="loading-spinner"></div>
             <p class="loading-text">Carregando cronologia...</p>
         </div>
 
-        <!-- Estado de erro -->
         <div class="error-state hidden" id="error-state">
             <p class="error-icon">⚠</p>
             <p class="error-text">Falha ao carregar os eventos. Verifique se o servidor está rodando.</p>
@@ -56,37 +61,30 @@
 
         <div class="modal-panel" id="modal-panel">
 
-            <!-- Botão fechar -->
             <button class="modal-close" id="modal-close" aria-label="Fechar">
                 <span class="close-icon">✕</span>
             </button>
 
-            <!-- Loading state do modal -->
             <div class="modal-loading" id="modal-loading">
                 <div class="loading-spinner small"></div>
                 <p>Carregando detalhes...</p>
             </div>
 
-            <!-- Conteúdo do modal (preenchido pelo JS) -->
             <div class="modal-content hidden" id="modal-content">
 
-                <!-- Imagem do evento -->
                 <div class="modal-image-wrap">
                     <img class="modal-image" id="modal-imagem" src="" alt="" loading="lazy">
                     <div class="modal-image-gradient"></div>
                 </div>
 
-                <!-- Cabeçalho -->
                 <div class="modal-header">
                     <p class="modal-data" id="modal-data"></p>
                     <h2 class="modal-titulo" id="modal-titulo"></h2>
                 </div>
 
-                <!-- Texto longo -->
                 <div class="modal-body">
                     <div class="modal-definicao" id="modal-definicao"></div>
 
-                    <!-- Seção de personagens (N:M) -->
                     <div class="modal-personagens-section" id="modal-personagens-section">
                         <h3 class="personagens-titulo">
                             <span class="titulo-linha"></span>
